@@ -34,18 +34,29 @@ set(CMAKE_ASM_COMPILER "${ARM_GCC_PATH}/arm-none-eabi-gcc")
 
 include_directories(${CMAKE_SOURCE_DIR}/Drivers/CMSIS/Include)
 include_directories(${CMAKE_SOURCE_DIR}/Drivers/CMSIS/Device)
+include_directories(${CMAKE_SOURCE_DIR}/SystemHw)
+include_directories(${CMAKE_SOURCE_DIR}/Display)
 
 set (PROJECT_SOURCES
 	startup_stm32f407vgtx.s
 	main.c
 	syscalls.c
 	sysmem.c
+    Display/display.c
+    Display/display_font.c
+    SystemHw/system_init.c
+    SystemHw/i2c.c  
 	)
 
 set (PROJECT_DEFINES
     )
 
 set (PROJECT_INCLUDES
+    system_init.h
+    i2c.h
+    display.h
+    display_fonts.h
+    config.h
     )
 
 project(${PROJECT_NAME})
