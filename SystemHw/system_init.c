@@ -34,12 +34,18 @@ void clock_init(void)
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;                              ///< Enable GPIOD clock
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;                              ///< Enable GPIOB clock
     RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;                               ///< Enable I2C1 clock
+
+    RCC->APB2ENR |= RCC_APB2ENR_USART1EN;                             ///< Enable USART1 clock
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;                              ///< Enable GPIOA clock
 }
 
 void NVIC_init(void) 
 {
   NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 1);                            ///< Set priority
   NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);                                 ///< Enable interrupt
+
+  NVIC_SetPriority(USART1_IRQn, 2);  // Lower priority than TIM1
+  NVIC_EnableIRQ(USART1_IRQn);
 }
 
 void timer_init(void)
@@ -59,6 +65,8 @@ void gpio_init(void)
   GPIOB->MODER |=  ((2<<16) | (2<<18));                               ///< Set alternate function mode for PB8 and PB9
   GPIOD->MODER &= ~((3<<24) | (3<<26));                               ///< Clear mode bits for PD12 and PD13
   GPIOD->MODER |= ((1<<24) | (1<<26));                                ///< Set output mode for PD12 and PD13
+  GPIOA->MODER &= ~((3<<(9*2)) | (3<<(10*2)));
+  GPIOA->MODER |= (2<<(9*2)) | (2<<(10*2));                           ///< AF mode: alternate function mode for PA9 and PA10
 
   GPIOB->OTYPER &= ~((1<<8) | (1<<9));                                ///< Clear output type bits for PB8 and PB9
   GPIOB->OTYPER |=  ((1<<8) | (1<<9));                                ///< Set output type to open-drain for PB8 and PB9
@@ -70,11 +78,28 @@ void gpio_init(void)
   GPIOB->PUPDR |=  ((1<<16) | (1<<18));                               ///< Set pull-up for PB8 and PB9
 
   GPIOB->AFR[1] |= ((4<<0) | (4<<4));                                 ///< Set AF4 (I2C1) for PB8 and PB9
+ GPIOA->AFR[1] &= ~((0xF<<4) | (0xF<<8));
+GPIOA->AFR[1] |= (7<<4) | (7<<8); // PA9=AF7, PA10=AF7///< AF7 for USART1
 }
 
+/// @todo Fix uart_init function
 void uart_init(void)
 {
-  // Placeholder for UART initialization
+    USART1->CR1 = 0;                                                  ///< Reset control register 1
+    USART1->CR2 = 0;                                                  ///< Reset control register 2
+    USART1->CR3 = 0;                                                  ///< Reset control register 3
+   
+    USART1->CR1 |= USART_CR1_UE;   
+    /**
+     * Set baud rate
+     * APB2 clock = 64 MHz
+     * Baud = 115200
+     * USARTDIV = fck / baud = 64,000,000 / 115200 ≈ 555.555
+     * Mantissa = 555, Fraction = 0.555*16 ≈ 8
+     */
+    USART1->BRR = (555 << 4) | 9; 
+    USART1->CR1 |= USART_CR1_TE | USART_CR1_RE;                      ///< Enable transmitter and receiver
+    USART1->CR1 |= USART_CR1_RXNEIE;                                 ///< Enable RXNE interrupt
 }
 
 void i2c_init(void)
@@ -100,11 +125,11 @@ void spi_init(void)
 
 void sys_init(void)
 {
-    clock_init();
-    NVIC_init();
-    timer_init();
-    gpio_init();
-    uart_init();
-    i2c_init();
-    spi_init();
+  clock_init();
+  NVIC_init();
+  timer_init();
+  gpio_init();
+  uart_init();
+  i2c_init();
+  spi_init();
 }

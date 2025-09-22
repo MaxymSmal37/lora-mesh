@@ -46,6 +46,7 @@ set (PROJECT_SOURCES
     Display/display_font.c
     SystemHw/system_init.c
     SystemHw/i2c.c  
+    SystemHw/uart.c
 	)
 
 set (PROJECT_DEFINES
@@ -57,6 +58,7 @@ set (PROJECT_INCLUDES
     display.h
     display_fonts.h
     config.h
+    uart.h
     )
 
 project(${PROJECT_NAME})
