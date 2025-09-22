@@ -1,6 +1,10 @@
+#include <stdio.h>
+
 #include "stm32f407xx.h"
+
 #include "system_init.h"
 #include "display.h"
+#include "uart.h"
 #include "Config.h"
 
 typedef struct {
@@ -10,6 +14,7 @@ typedef struct {
 } sysTimers;
 
 volatile sysTimers timers;
+volatile char uart_rx_data;
 
 int main(void)
 {
@@ -27,8 +32,16 @@ int main(void)
     for (volatile int i = 0; i < 10000000; i++)
       ;
     ssd1306_DemoAnimation();
+    printf("Demo Animation Completed\n");
   }
 }
+
+int __io_putchar(int ch)  
+{
+    uart_send_char((char)ch);
+    return ch;
+}
+
 void TIM1_UP_TIM10_IRQHandler(void)
 {
   if (TIM1->SR & TIM_SR_UIF) 
@@ -46,4 +59,13 @@ void TIM1_UP_TIM10_IRQHandler(void)
       GPIOD->ODR ^= (1 << 13);              
     }
   }
+}
+
+void USART1_IRQHandler(void)
+{
+    if (USART1->SR & USART_SR_RXNE)  // Check if RX not empty
+    {
+        uart_rx_data = (char)USART1->DR; // Read received byte
+        uart_send_char(uart_rx_data);        // Echo back
+    }
 }
