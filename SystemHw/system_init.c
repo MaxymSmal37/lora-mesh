@@ -3,40 +3,41 @@
 
 void clock_init(void)
 {
-    RCC->CR |= RCC_CR_HSEON;                                          ///< Enable HSE
-    while (!(RCC->CR & RCC_CR_HSERDY));                               ///< Wait until HSE is ready
+  RCC->CR |= RCC_CR_HSEON;                                          ///< Enable HSE
+  while (!(RCC->CR & RCC_CR_HSERDY));                               ///< Wait until HSE is ready
 
-    FLASH->ACR |= FLASH_ACR_ICEN | FLASH_ACR_DCEN | FLASH_ACR_PRFTEN; ///< Enable caches and prefetch
-    FLASH->ACR &= ~FLASH_ACR_LATENCY;                                 ///< Clear latency bits
-    FLASH->ACR |= FLASH_ACR_LATENCY_2WS;                              ///< 2 wait states
+  FLASH->ACR |= FLASH_ACR_ICEN | FLASH_ACR_DCEN | FLASH_ACR_PRFTEN; ///< Enable caches and prefetch
+  FLASH->ACR &= ~FLASH_ACR_LATENCY;                                 ///< Clear latency bits
+  FLASH->ACR |= FLASH_ACR_LATENCY_2WS;                              ///< 2 wait states
 
-    RCC->PLLCFGR = 0;                                                 ///< Reset PLLCFGR register
-    RCC->PLLCFGR |= (8 << RCC_PLLCFGR_PLLM_Pos);                      ///< PLLM = 8 (8 MHz / 8 = 1 MHz)
-    RCC->PLLCFGR |= (256 << RCC_PLLCFGR_PLLN_Pos);                    ///< PLLN = 256 (1 MHz * 256 = 256 MHz)
-    RCC->PLLCFGR |= (0 << RCC_PLLCFGR_PLLP_Pos);                      ///< PLLP = 2 (gives 128 MHz)
+  RCC->PLLCFGR = 0;                                                 ///< Reset PLLCFGR register
+  RCC->PLLCFGR |= (8 << RCC_PLLCFGR_PLLM_Pos);                      ///< PLLM = 8 (8 MHz / 8 = 1 MHz)
+  RCC->PLLCFGR |= (256 << RCC_PLLCFGR_PLLN_Pos);                    ///< PLLN = 256 (1 MHz * 256 = 256 MHz)
+  RCC->PLLCFGR |= (0 << RCC_PLLCFGR_PLLP_Pos);                      ///< PLLP = 2 (gives 128 MHz)
 
-    RCC->PLLCFGR |= (1 << RCC_PLLCFGR_PLLP_Pos);                      ///< PLLP = 4 → 64 MHz
-    RCC->PLLCFGR |= RCC_PLLCFGR_PLLSRC_HSE;                           ///< Use HSE as PLL source
+  RCC->PLLCFGR |= (1 << RCC_PLLCFGR_PLLP_Pos);                      ///< PLLP = 4 → 64 MHz
+  RCC->PLLCFGR |= RCC_PLLCFGR_PLLSRC_HSE;                           ///< Use HSE as PLL source
 
-    
-    RCC->CR |= RCC_CR_PLLON;                                          ///< Enable PLL
-    while (!(RCC->CR & RCC_CR_PLLRDY));                               ///< Wait until PLL is ready
+  RCC->CR |= RCC_CR_PLLON;                                          ///< Enable PLL
+  while (!(RCC->CR & RCC_CR_PLLRDY));                               ///< Wait until PLL is ready
 
-    RCC->CFGR &= ~RCC_CFGR_SW;                                        ///< Clear SW bits
-    RCC->CFGR |= RCC_CFGR_SW_PLL;                                     ///< Select PLL as system clock
-    while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);           ///< Wait until PLL is used as system clock
+  RCC->CFGR &= ~RCC_CFGR_SW;                                        ///< Clear SW bits
+  RCC->CFGR |= RCC_CFGR_SW_PLL;                                     ///< Select PLL as system clock
+  while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);           ///< Wait until PLL is used as system clock
 
-    RCC->CFGR &= ~(RCC_CFGR_HPRE | RCC_CFGR_PPRE1 | RCC_CFGR_PPRE2);  ///< Clear prescaler bits
-    RCC->CFGR |= RCC_CFGR_HPRE_DIV1;                                  ///< AHB = 64 MHz
-    RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;                                 ///< APB1 = 32 MHz
-    RCC->CFGR |= RCC_CFGR_PPRE2_DIV1;                                 ///< APB2 = 64 MHz
+  RCC->CFGR &= ~(RCC_CFGR_HPRE | RCC_CFGR_PPRE1 | RCC_CFGR_PPRE2);  ///< Clear prescaler bits
+  RCC->CFGR |= RCC_CFGR_HPRE_DIV1;                                  ///< AHB = 64 MHz
+  RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;                                 ///< APB1 = 32 MHz
+  RCC->CFGR |= RCC_CFGR_PPRE2_DIV1;                                 ///< APB2 = 64 MHz
 
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;                              ///< Enable GPIOD clock
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;                              ///< Enable GPIOB clock
-    RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;                               ///< Enable I2C1 clock
+  RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;                              ///< Enable GPIOD clock
+  RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;                              ///< Enable GPIOB clock
+  RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;                               ///< Enable I2C1 clock
 
-    RCC->APB2ENR |= RCC_APB2ENR_USART1EN;                             ///< Enable USART1 clock
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;                              ///< Enable GPIOA clock
+  RCC->APB2ENR |= RCC_APB2ENR_USART1EN;                             ///< Enable USART1 clock
+  RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;                              ///< Enable GPIOA clock
+
+  RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;                               ///< Enable SPI1 clock
 }
 
 void NVIC_init(void) 
@@ -67,19 +68,29 @@ void gpio_init(void)
   GPIOD->MODER |= ((1<<24) | (1<<26));                                ///< Set output mode for PD12 and PD13
   GPIOA->MODER &= ~((3<<(9*2)) | (3<<(10*2)));
   GPIOA->MODER |= (2<<(9*2)) | (2<<(10*2));                           ///< AF mode: alternate function mode for PA9 and PA10
+  GPIOA->MODER &= ~((2<<8) | (2<<10) | (2<<12) | (2<<14));            ///< Clear mode bits for PA4, PA5, PA6 and PA7
+  GPIOA->MODER |=  ((2<<8) | (2<<10) | (2<<12) | (2<<14));            ///< Set alternate function mode for PA4, PA5, PA6 and PA7
 
   GPIOB->OTYPER &= ~((1<<8) | (1<<9));                                ///< Clear output type bits for PB8 and PB9
   GPIOB->OTYPER |=  ((1<<8) | (1<<9));                                ///< Set output type to open-drain for PB8 and PB9
+  GPIOA->OTYPER &= ~((1<<5) | (1<<6) | (1<<7));                       ///< Clear output type bits for PA5, PA6 and PA7
+  GPIOA->OTYPER |=  ((0<<5) | (0<<6) | (0<<7));                       ///< Set output type to push-pull for PA5, PA6 and PA7
 
   GPIOB->OSPEEDR &= ~((3<<16) | (3<<18));                             ///< Clear speed bits for PB8 and PB9
   GPIOB->OSPEEDR |=  ((3<<16) | (3<<18));                             ///< Set high speed for PB8 and PB9
+  GPIOA->OSPEEDR &= ~((3<<10) | (3<<12) | (3<<14));                   ///< Clear speed bits for PA5, PA6 and PA7
+  GPIOA->OSPEEDR |=  ((3<<10) | (3<<12) | (3<<14));                   ///< Set high speed for PA5, PA6 and PA7
 
   GPIOB->PUPDR &= ~((3<<16) | (3<<18));                               ///< Clear pull-up/pull-down bits for PB8 and PB9
   GPIOB->PUPDR |=  ((1<<16) | (1<<18));                               ///< Set pull-up for PB8 and PB9
+  GPIOA->PUPDR &= ~((3<<10) | (3<<12) | (3<<14));                     ///< Clear pull-up/pull-down bits for PA5, PA6 and PA7
+  GPIOA->PUPDR |=  ((0<<10) | (0<<12) | (0<<14));                     ///< No pull-up, no pull-down for PA5,
 
   GPIOB->AFR[1] |= ((4<<0) | (4<<4));                                 ///< Set AF4 (I2C1) for PB8 and PB9
- GPIOA->AFR[1] &= ~((0xF<<4) | (0xF<<8));
-GPIOA->AFR[1] |= (7<<4) | (7<<8); // PA9=AF7, PA10=AF7///< AF7 for USART1
+  GPIOA->AFR[1] &= ~((0xF<<4) | (0xF<<8));                            ///< Clear AF bits for PA9 and PA10
+  GPIOA->AFR[1] |= (7<<4) | (7<<8);                                   ///< Set AF7 (USART1) for PA9 and PA10
+  GPIOA->AFR[0] &= ~((0xF<<20) | (0xF<<24) | (0xF<<28));              ///< Clear AF bits for PA5, PA6 and PA7
+  GPIOA->AFR[0] |= (5<<20) | (5<<24) | (5<<28);                       ///< Set AF5 (SPI1) for PA5, PA6 and PA7
 }
 
 /// @todo Fix uart_init function
@@ -120,7 +131,12 @@ void i2c_init(void)
 
 void spi_init(void)
 {
-  // Placeholder for SPI initialization
+  SPI1->CR1 = 0;
+  SPI1->CR1 |= SPI_CR1_MSTR;                                         ///< Master Mode
+  SPI1->CR1 |= SPI_CR1_SSM | SPI_CR1_SSI;                            ///< Software NSS hight
+  SPI1->CR1 |= SPI_CR1_CPOL | SPI_CR1_CPHA;                          ///< Set CPOL=1, CPHA=1
+  SPI1->CR1 |= SPI_CR1_BR_1;                                         ///< fPCLK/8 = 8 MHz (для початку)
+  SPI1->CR1 |= SPI_CR1_SPE;                                          ///< Enable SPI
 }
 
 void sys_init(void)
