@@ -5,6 +5,7 @@
 #include "system_init.h"
 #include "display.h"
 #include "uart.h"
+#include "sx1278_lora.h"
 #include "Config.h"
 
 typedef struct {
@@ -24,15 +25,16 @@ int main(void)
 
   sys_init();
   ssd1306_InitDisplay();
+  sx1278_lora_init();
   GPIOD->ODR |= (1 << 12);
 
   while (1)
   {
     GPIOD->ODR ^= (1 << 12);
-    for (volatile int i = 0; i < 10000000; i++)
-      ;
+    for (volatile int i = 0; i < 10000000; i++);
     ssd1306_DemoAnimation();
     printf("Demo Animation Completed\n");
+    sx1278_lora_tx(0x01);
   }
 }
 
@@ -47,6 +49,8 @@ void TIM1_UP_TIM10_IRQHandler(void)
   if (TIM1->SR & TIM_SR_UIF) 
   {
     TIM1->SR &= ~TIM_SR_UIF; // Clear interrupt flag
+
+    sx1278_lora_handle_TIMER_ms();
 
     if (timers.counter1000ms > 0)
     {

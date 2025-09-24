@@ -1,6 +1,6 @@
 rm -r build
 mkdir build
-cd buil
+cd build
 cmake -DCMAKE_TOOLCHAIN_FILE=../arm-gcc.cmake ..
 make
 cd ..

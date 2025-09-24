@@ -36,6 +36,7 @@ include_directories(${CMAKE_SOURCE_DIR}/Drivers/CMSIS/Include)
 include_directories(${CMAKE_SOURCE_DIR}/Drivers/CMSIS/Device)
 include_directories(${CMAKE_SOURCE_DIR}/SystemHw)
 include_directories(${CMAKE_SOURCE_DIR}/Display)
+include_directories(${CMAKE_SOURCE_DIR}/Connectivity)
 
 set (PROJECT_SOURCES
 	startup_stm32f407vgtx.s
@@ -47,6 +48,8 @@ set (PROJECT_SOURCES
     SystemHw/system_init.c
     SystemHw/i2c.c  
     SystemHw/uart.c
+    SystemHw/spi.c
+    Connectivity/sx1278_lora.c
 	)
 
 set (PROJECT_DEFINES
@@ -59,6 +62,8 @@ set (PROJECT_INCLUDES
     display_fonts.h
     config.h
     uart.h
+    spi.h
+    sx1278_lora.h
     )
 
 project(${PROJECT_NAME})
