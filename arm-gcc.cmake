@@ -8,9 +8,9 @@ set(CMAKE_SYSTEM_PROCESSOR arm)
 # set(CMAKE_CXX_COMPILER /opt/homebrew/bin/arm-none-eabi-g++)
 
 
-set(CMAKE_C_COMPILER arm-none-eabi-gcc)
-set(CMAKE_ASM_COMPILER arm-none-eabi-gcc)
-set(CMAKE_CXX_COMPILER arm-none-eabi-g++)
+#set(CMAKE_C_COMPILER arm-none-eabi-gcc)
+#set(CMAKE_ASM_COMPILER arm-none-eabi-gcc)
+#sset(CMAKE_CXX_COMPILER arm-none-eabi-g++)
 
 
 # Виключаємо стандартну бібліотеку

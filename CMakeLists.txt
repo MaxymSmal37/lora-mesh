@@ -37,6 +37,8 @@ include_directories(${CMAKE_SOURCE_DIR}/Drivers/CMSIS/Device)
 include_directories(${CMAKE_SOURCE_DIR}/SystemHw)
 include_directories(${CMAKE_SOURCE_DIR}/Display)
 include_directories(${CMAKE_SOURCE_DIR}/Connectivity)
+include_directories(${CMAKE_SOURCE_DIR}/App)
+include_directories(${CMAKE_SOURCE_DIR}/Logger)
 
 set (PROJECT_SOURCES
 	startup_stm32f407vgtx.s
@@ -50,6 +52,8 @@ set (PROJECT_SOURCES
     SystemHw/uart.c
     SystemHw/spi.c
     Connectivity/sx1278_lora.c
+    App/Error.c
+    Logger/Logger.c
 	)
 
 set (PROJECT_DEFINES
@@ -64,6 +68,8 @@ set (PROJECT_INCLUDES
     uart.h
     spi.h
     sx1278_lora.h
+    Error_Loc.h
+    Logger.h
     )
 
 project(${PROJECT_NAME})

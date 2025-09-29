@@ -6,6 +6,8 @@
 #include "display.h"
 #include "uart.h"
 #include "sx1278_lora.h"
+#include "Error_Loc.h"
+#include "Error_Pub.h"
 #include "Config.h"
 
 typedef struct {
@@ -17,6 +19,10 @@ typedef struct {
 volatile sysTimers timers;
 volatile char uart_rx_data;
 
+uint8_t error_blink_flag = 0;
+
+uint8_t rxData = 0;
+
 int main(void)
 {
   timers.counter100ms = TIMER_100_MS;
@@ -24,24 +30,35 @@ int main(void)
   timers.counter1000ms = TIMER_1000_MS;
 
   sys_init();
+  GPIOA->ODR |= (1 << 4);   
   ssd1306_InitDisplay();
   sx1278_lora_init();
+
+  if (sx1278_lora_get_regVersion() != 0x12)
+  {
+    set_error(APP_UNDEFINED_SX1278_MODULE);
+  }
+
   GPIOD->ODR |= (1 << 12);
 
   while (1)
   {
-    GPIOD->ODR ^= (1 << 12);
     for (volatile int i = 0; i < 10000000; i++);
     ssd1306_DemoAnimation();
     printf("Demo Animation Completed\n");
-    sx1278_lora_tx(0x01);
+    sx1278_lora_rx(&rxData);
+
+    if(rxData == 0x55)
+    {
+      GPIOD->ODR ^= (1 << 12);
+    }
   }
 }
 
 int __io_putchar(int ch)  
 {
-    uart_send_char((char)ch);
-    return ch;
+  uart_send_char((char)ch);
+  return ch;
 }
 
 void TIM1_UP_TIM10_IRQHandler(void)
@@ -52,12 +69,13 @@ void TIM1_UP_TIM10_IRQHandler(void)
 
     sx1278_lora_handle_TIMER_ms();
 
-    if (timers.counter1000ms > 0)
+    if (--timers.counter500ms == 0)
     {
-      timers.counter1000ms--;
+      timers.counter500ms = TIMER_500_MS; // reload 500ms           
+      handle_sys_error();
     }
 
-    if (timers.counter1000ms == 0)
+    if (--timers.counter1000ms == 0)
     {
       timers.counter1000ms = TIMER_1000_MS; // reload 1000ms
       GPIOD->ODR ^= (1 << 13);              

@@ -115,4 +115,6 @@ void ssd1306_SetChar(char c);
  */
 void ssd1306_DemoAnimation(void);
 
+void ssd1306_PutString(const char *str);
+
 #endif // _DISPLAY_H
